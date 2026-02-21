@@ -1,9 +1,8 @@
 import { useMemo, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
-import { Search, ShoppingCart, User } from "lucide-react";
+import { Search, ShoppingCart, User, ChevronDown } from "lucide-react";
 import { MENU } from "../data/menu";
 import type { MenuCategory } from "../data/menu";
-import { ChevronDown } from "lucide-react";
 
 function classNames(...c: Array<string | false | undefined>) {
   return c.filter(Boolean).join(" ");
@@ -125,13 +124,22 @@ function RedMegaNav() {
                   to={cat.href}
                   className={({ isActive }) =>
                     classNames(
-                      "inline-flex items-center gap-2 opacity-95 hover:opacity-100",
-                      isActive ? "opacity-100" : "",
+                      // "inline-flex items-center gap-2 opacity-95 hover:opacity-100",
+                      // isActive ? "opacity-100" : "",
+                      "group relative inline-flex items-center gap-2 px-2 py-1 rounded-md transition-all duration-200",
+                      "text-white/90 hover:text-white",
+                      "hover:bg-white/10",
+                      isActive ? "text-white bg-white/15" : "",
                     )
                   }
                 >
                   {cat.label}
-                  <span className="text-white/90">▾</span>
+                  <span className="absolute -bottom-1 left-0 h-[2px] w-0 bg-white transition-all duration-300 group-hover:w-full" />
+                  {/* <span className="text-white/90">▾</span> */}
+                  <ChevronDown
+                    size={14}
+                    className="transition-transform duration-200 group-hover:rotate-180"
+                  />
                 </NavLink>
               </li>
             ))}
