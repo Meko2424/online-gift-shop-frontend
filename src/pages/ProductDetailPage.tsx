@@ -1,36 +1,13 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import type { ProductDetail } from "../data/mockProductDetails";
-import { PRODUCT_DETAILS } from "../data/mockProductDetails";
+import { apiGet } from "../lib/api";
+import type { ProductDetailOut } from "../types/api";
 
 function formatMoney(n: number) {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
   }).format(n);
-}
-
-function Stars({ rating = 0 }: { rating?: number }) {
-  const full = Math.floor(rating);
-  const empty = Math.max(0, 5 - full);
-
-  return (
-    <div className="flex items-center gap-2">
-      <div className="text-amber-400">
-        {Array.from({ length: full }).map((_, i) => (
-          <span key={`f-${i}`}>★</span>
-        ))}
-        {Array.from({ length: empty }).map((_, i) => (
-          <span key={`e-${i}`} className="text-amber-200">
-            ★
-          </span>
-        ))}
-      </div>
-      <span className="text-sm text-gray-700">
-        {rating ? rating.toFixed(1) : ""}
-      </span>
-    </div>
-  );
 }
 
 function Badge({ children }: { children: React.ReactNode }) {
@@ -44,23 +21,94 @@ function Badge({ children }: { children: React.ReactNode }) {
 export default function ProductDetailPage() {
   const { slug } = useParams<{ slug: string }>();
 
-  const product: ProductDetail | undefined = useMemo(
-    () => PRODUCT_DETAILS.find((p) => p.slug === slug),
-    [slug],
-  );
+  const [product, setProduct] = useState<ProductDetailOut | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [qty, setQty] = useState(1);
 
-  if (!product) {
+  useEffect(() => {
+    if (!slug) return;
+
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    setProduct(null);
+
+    apiGet<ProductDetailOut>(`/api/products/${slug}`)
+      .then((data) => {
+        if (!cancelled) setProduct(data);
+      })
+      .catch((e) => {
+        if (!cancelled) setError(e?.message ?? "Failed to load product");
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [slug]);
+
+  // fallback image if backend returns null
+  const imageSrc = useMemo(() => {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-12">
-        <h1 className="text-2xl font-semibold">Product not found</h1>
-        <Link className="mt-4 inline-block underline underline-offset-4" to="/">
-          Back to home
-        </Link>
-      </div>
+      product?.image_url ||
+      "https://images.unsplash.com/photo-1549007994-cb92caebd54b?auto=format&fit=crop&w=1600&q=80"
+    );
+  }, [product]);
+
+  if (loading) {
+    return (
+      <main className="bg-gray-50">
+        <div className="mx-auto max-w-7xl px-4 py-12">
+          <div className="rounded-3xl border bg-white p-8 shadow-sm">
+            <p className="text-sm text-gray-600">Loading product…</p>
+          </div>
+        </div>
+      </main>
     );
   }
+
+  if (error) {
+    return (
+      <main className="bg-gray-50">
+        <div className="mx-auto max-w-7xl px-4 py-12">
+          <div className="rounded-3xl border bg-white p-8 shadow-sm">
+            <p className="text-sm font-semibold text-gray-900">
+              Couldn’t load product
+            </p>
+            <p className="mt-2 text-sm text-gray-600">{error}</p>
+            <div className="mt-4">
+              <Link className="underline underline-offset-4" to="/">
+                Back to home
+              </Link>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (!product) {
+    return (
+      <main className="bg-gray-50">
+        <div className="mx-auto max-w-7xl px-4 py-12">
+          <h1 className="text-2xl font-semibold">Product not found</h1>
+          <Link
+            className="mt-4 inline-block underline underline-offset-4"
+            to="/"
+          >
+            Back to home
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
+  const isBundle = product.type === "bundle";
+  const hasComponents = !!product.components && product.components.length > 0;
 
   return (
     <main className="bg-gray-50">
@@ -83,7 +131,7 @@ export default function ProductDetailPage() {
           <div className="rounded-3xl border bg-white p-6 shadow-sm">
             <div className="rounded-2xl bg-gray-50 p-6">
               <img
-                src={product.imageUrl}
+                src={imageSrc}
                 alt={product.name}
                 className="mx-auto h-[420px] w-full object-contain"
               />
@@ -100,42 +148,33 @@ export default function ProductDetailPage() {
           {/* Details */}
           <div className="rounded-3xl border bg-white p-8 shadow-sm">
             <div className="flex flex-wrap gap-2">
-              {product.badges?.map((b) => (
-                <Badge key={b}>{b}</Badge>
-              ))}
-              {product.type === "bundle" ? <Badge>Combo Package</Badge> : null}
+              {isBundle ? <Badge>Combo Package</Badge> : <Badge>Item</Badge>}
             </div>
 
             <h1 className="mt-4 text-3xl font-semibold tracking-tight text-gray-900">
               {product.name}
             </h1>
 
-            <div className="mt-3 flex items-center gap-3">
-              <Stars rating={product.rating} />
-              {product.reviewCount ? (
-                <span className="text-sm text-gray-600">
-                  ({product.reviewCount} reviews)
-                </span>
-              ) : null}
-            </div>
-
             <div className="mt-6 flex items-end gap-3">
-              {product.compareAtPrice ? (
+              {product.compare_at_price != null ? (
                 <span className="text-gray-400 line-through">
-                  {formatMoney(product.compareAtPrice)}
+                  {formatMoney(product.compare_at_price)}
                 </span>
               ) : null}
+
               <span className="text-3xl font-semibold text-gray-900">
                 {formatMoney(product.price)}
               </span>
             </div>
 
-            <p className="mt-6 text-gray-700 leading-relaxed">
-              {product.description}
-            </p>
+            {product.description ? (
+              <p className="mt-6 text-gray-700 leading-relaxed">
+                {product.description}
+              </p>
+            ) : null}
 
             {/* Bundle breakdown */}
-            {product.type === "bundle" && product.components?.length ? (
+            {isBundle && hasComponents ? (
               <div className="mt-8 rounded-2xl border bg-gray-50 p-6">
                 <h2 className="text-lg font-semibold text-gray-900">
                   What’s included
@@ -145,9 +184,9 @@ export default function ProductDetailPage() {
                 </p>
 
                 <ul className="mt-4 space-y-3">
-                  {product.components.map((c) => (
+                  {product.components!.map((c) => (
                     <li
-                      key={c.sku}
+                      key={`${c.sku}-${c.name}`}
                       className="flex items-center justify-between rounded-xl bg-white p-4 shadow-sm ring-1 ring-black/5"
                     >
                       <div>
@@ -217,7 +256,6 @@ export default function ProductDetailPage() {
               </div>
             </div>
 
-            {/* Supplier note for cakes (future) */}
             <div className="mt-6 text-xs text-gray-500">
               Future: For made-to-order items (e.g., cakes), the system will
               notify suppliers on order.

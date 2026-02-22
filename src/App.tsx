@@ -4,7 +4,9 @@ import HeroCarousel from "./components/HeroCarousel";
 import ShopBySection from "./components/ShopBySection";
 import ShopByCategoryBar from "./components/ShopByCategoryBar";
 import ProductCarousel from "./components/ProductCarousel";
-import { BEST_SELLERS } from "./data/mockProducts";
+//import { BEST_SELLERS } from "./data/mockProducts";
+import { useBestSellers } from "./hooks/useBestSellers";
+import type { Product as CardProduct } from "./components/ProductCard";
 import ProductDetailPage from "./pages/ProductDetailPage";
 // function Home() {
 //   return (
@@ -18,6 +20,19 @@ import ProductDetailPage from "./pages/ProductDetailPage";
 // }
 
 function Home() {
+  const { data: best, loading: bestLoading } = useBestSellers();
+
+  const bestSellerCards: CardProduct[] = best.map((p) => ({
+    id: String(p.id),
+    name: p.name,
+    href: `/p/${p.slug}`,
+    imageUrl:
+      p.image_url ||
+      "https://images.unsplash.com/photo-1549007994-cb92caebd54b?auto=format&fit=crop&w=1200&q=80",
+    price: p.price,
+    compareAtPrice: p.compare_at_price ?? undefined,
+    // rating/badge not in backend yet; we’ll add later
+  }));
   const heroSlides = [
     {
       title: "Send gifts, cakes, flowers, and groceries",
@@ -116,7 +131,10 @@ function Home() {
       {/* NEW GiftTree-style category bar */}
       {/* <ShopByCategoryBar /> */}
       <ShopByCategoryBar />
-      <ProductCarousel title="Best Sellers" products={BEST_SELLERS} />
+      {/* <ProductCarousel title="Best Sellers" products={BEST_SELLERS} /> */}
+      {bestLoading ? null : (
+        <ProductCarousel title="Best Sellers" products={bestSellerCards} />
+      )}
       <ShopBySection
         title="Shop By Occasion"
         accentWord="Occasion"
