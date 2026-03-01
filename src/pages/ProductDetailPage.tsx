@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { apiGet } from "../lib/api";
 import type { ProductDetailOut } from "../types/api";
+import { useCart } from "../cart/cart";
 
 function formatMoney(n: number) {
   return new Intl.NumberFormat("en-US", {
@@ -26,6 +27,8 @@ export default function ProductDetailPage() {
   const [error, setError] = useState<string | null>(null);
 
   const [qty, setQty] = useState(1);
+
+  const cart = useCart();
 
   useEffect(() => {
     if (!slug) return;
@@ -232,8 +235,21 @@ export default function ProductDetailPage() {
               <button
                 type="button"
                 className="flex-1 rounded-full bg-black px-6 py-3 text-sm font-semibold text-white hover:bg-gray-900"
+                // onClick={() =>
+                //   alert(`Mock: Added ${qty} × "${product.name}" to cart`)
+                // }
                 onClick={() =>
-                  alert(`Mock: Added ${qty} × "${product.name}" to cart`)
+                  cart.addItem(
+                    {
+                      product_id: product.id,
+                      slug: product.slug,
+                      name: product.name,
+                      image_url: product.image_url,
+                      unit_price: product.price,
+                      product_type: product.type,
+                    },
+                    qty,
+                  )
                 }
               >
                 Add to Cart

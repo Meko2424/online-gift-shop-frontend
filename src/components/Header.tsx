@@ -3,6 +3,7 @@ import { Link, NavLink } from "react-router-dom";
 import { Search, ShoppingCart, User, ChevronDown } from "lucide-react";
 import { MENU } from "../data/menu";
 import type { MenuCategory } from "../data/menu";
+import { useCart } from "../cart/cart";
 
 function classNames(...c: Array<string | false | undefined>) {
   return c.filter(Boolean).join(" ");
@@ -39,6 +40,7 @@ function PromoStrip() {
 }
 
 function TopBar() {
+  const { itemsCount } = useCart();
   return (
     <div className="border-b">
       <div className="mx-auto max-w-7xl px-4 py-4 flex items-center gap-4">
@@ -76,10 +78,16 @@ function TopBar() {
           </Link>
           <Link
             to="/cart"
-            className="rounded-full p-2 hover:bg-gray-100"
+            className="relative isolate rounded-full p-2 hover:bg-gray-100"
             aria-label="Cart"
           >
+            {/* <ShoppingCart size={20} /> */}
             <ShoppingCart size={20} />
+            {itemsCount > 0 ? (
+              <span className="pointer-events-none absolute -right-1 -top-1 z-10 grid h-5 min-w-[20px] place-items-center rounded-full bg-black px-1 text-[11px] font-bold leading-none text-white">
+                {itemsCount > 99 ? "99+" : itemsCount}
+              </span>
+            ) : null}
           </Link>
         </div>
       </div>

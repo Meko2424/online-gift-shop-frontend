@@ -8,6 +8,8 @@ import ProductCarousel from "./components/ProductCarousel";
 import { useBestSellers } from "./hooks/useBestSellers";
 import type { Product as CardProduct } from "./components/ProductCard";
 import ProductDetailPage from "./pages/ProductDetailPage";
+import CategoryPage from "./pages/CategoryPage";
+import CartPage from "./pages/CartPages";
 // function Home() {
 //   return (
 //     <div className="mx-auto max-w-7xl px-4 py-10">
@@ -155,22 +157,22 @@ function Home() {
   );
 }
 
-function Category() {
-  return (
-    <div className="mx-auto max-w-7xl px-4 py-10">
-      <h1 className="text-2xl font-bold">Category page</h1>
-      <p className="mt-2 text-gray-600">Next: filters + product grid cards.</p>
-    </div>
-  );
-}
+// function Category() {
+//   return (
+//     <div className="mx-auto max-w-7xl px-4 py-10">
+//       <h1 className="text-2xl font-bold">Category page</h1>
+//       <p className="mt-2 text-gray-600">Next: filters + product grid cards.</p>
+//     </div>
+//   );
+// }
 
-function Cart() {
-  return (
-    <div className="mx-auto max-w-7xl px-4 py-10">
-      <h1 className="text-2xl font-bold">Cart</h1>
-    </div>
-  );
-}
+// function Cart() {
+//   return (
+//     <div className="mx-auto max-w-7xl px-4 py-10">
+//       <h1 className="text-2xl font-bold">Cart</h1>
+//     </div>
+//   );
+// }
 
 function Account() {
   return (
@@ -186,9 +188,10 @@ export default function App() {
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/c/:slug" element={<Category />} />
+        {/* <Route path="/c/:slug" element={<Category />} /> */}
+        <Route path="/c/:slug" element={<CategoryPage />} />
         <Route path="/p/:slug" element={<ProductDetailPage />} />
-        <Route path="/cart" element={<Cart />} />
+        <Route path="/cart" element={<CartPage />} />
         <Route path="/account" element={<Account />} />
       </Routes>
     </BrowserRouter>

@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useCart } from "../cart/cart";
 
 export type Product = {
   id: string;
@@ -44,6 +45,7 @@ function Stars({ rating = 0 }: { rating?: number }) {
 }
 
 export default function ProductCard({ product }: { product: Product }) {
+  const cart = useCart();
   return (
     <div className="relative flex h-full flex-col rounded-2xl border bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
       {/* Badge */}
@@ -89,7 +91,20 @@ export default function ProductCard({ product }: { product: Product }) {
         <button
           type="button"
           className="w-full rounded-full bg-black px-4 py-2.5 text-sm font-semibold text-white hover:bg-gray-900"
-          onClick={() => alert(`Mock: Added "${product.name}" to cart`)}
+          //
+          onClick={() =>
+            cart.addItem(
+              {
+                product_id: Number(product.id),
+                slug: product.href.replace("/p/", ""),
+                name: product.name,
+                image_url: product.imageUrl,
+                unit_price: product.price,
+                product_type: product.badge === "Combo" ? "bundle" : "simple",
+              },
+              1,
+            )
+          }
         >
           Add to Cart
         </button>
