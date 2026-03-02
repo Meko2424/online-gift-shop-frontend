@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../cart/cart";
 
 function formatMoney(n: number) {
@@ -10,6 +10,7 @@ function formatMoney(n: number) {
 
 export default function CartPage() {
   const cart = useCart();
+  const navigate = useNavigate();
 
   return (
     <main className="bg-gray-50">
@@ -152,8 +153,10 @@ export default function CartPage() {
               <button
                 type="button"
                 className="mt-6 w-full rounded-full bg-black px-6 py-3 text-sm font-semibold text-white hover:bg-gray-900"
-                onClick={() =>
-                  alert("Next step: Checkout flow (create order + pay)")
+                onClick={
+                  () => navigate("/checkout")
+
+                  // alert("Next step: Checkout flow (create order + pay)")
                 }
               >
                 Checkout

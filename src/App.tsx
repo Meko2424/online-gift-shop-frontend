@@ -9,7 +9,10 @@ import { useBestSellers } from "./hooks/useBestSellers";
 import type { Product as CardProduct } from "./components/ProductCard";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import CategoryPage from "./pages/CategoryPage";
-import CartPage from "./pages/CartPages";
+import CartPage from "./pages/CartPage";
+import CheckoutPage from "./pages/CheckoutPage";
+import OrderSuccessPage from "./pages/OrderSuccessPage";
+import LoginPage from "./pages/LoginPage";
 // function Home() {
 //   return (
 //     <div className="mx-auto max-w-7xl px-4 py-10">
@@ -188,11 +191,14 @@ export default function App() {
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/login" element={<LoginPage />} />
         {/* <Route path="/c/:slug" element={<Category />} /> */}
         <Route path="/c/:slug" element={<CategoryPage />} />
         <Route path="/p/:slug" element={<ProductDetailPage />} />
         <Route path="/cart" element={<CartPage />} />
         <Route path="/account" element={<Account />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
       </Routes>
     </BrowserRouter>
   );
