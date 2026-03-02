@@ -30,3 +30,23 @@ export type ProductDetailOut = {
   image_url?: string | null;
   components?: BundleComponentOut[] | null;
 };
+
+export type OrderItemOut = {
+  id: number;
+  product_id: number;
+  qty: number;
+  unit_price: number;
+  product_type: "simple" | "bundle";
+  fulfillment_type: "STOCKED" | "MADE_TO_ORDER" | "DIGITAL";
+};
+
+export type OrderOut = {
+  id: number;
+  status: string;
+  warehouse_id: number | null;
+  customer_name: string;
+  customer_phone: string;
+  total_amount: number;
+  created_at: string;
+  items: OrderItemOut[];
+};
