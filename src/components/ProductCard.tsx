@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useCart } from "../cart/cart";
+//import { useCart } from "../cart/cart";
 
 export type Product = {
   id: string;
@@ -45,7 +45,7 @@ function Stars({ rating = 0 }: { rating?: number }) {
 }
 
 export default function ProductCard({ product }: { product: Product }) {
-  const cart = useCart();
+  // const cart = useCart();
   return (
     <div className="relative flex h-full flex-col rounded-2xl border bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
       {/* Badge */}
@@ -87,7 +87,7 @@ export default function ProductCard({ product }: { product: Product }) {
         </div>
       </Link>
 
-      <div className="mt-auto px-5 pb-5">
+      {/*<div className="mt-auto px-5 pb-5">
         <button
           type="button"
           className="w-full rounded-full bg-black px-4 py-2.5 text-sm font-semibold text-white hover:bg-gray-900"
@@ -107,8 +107,53 @@ export default function ProductCard({ product }: { product: Product }) {
           }
         >
           Add to Cart
-        </button>
-      </div>
+        </button> 
+      </div>*/}
     </div>
   );
 }
+//==========================================================
+// import { Link } from "react-router-dom";
+// import type { ProductListOut } from "../types/api";
+
+// function formatMoney(n: number) {
+//   return new Intl.NumberFormat("en-US", {
+//     style: "currency",
+//     currency: "USD",
+//   }).format(n);
+// }
+
+// const FALLBACK_IMG =
+//   "https://images.unsplash.com/photo-1549007994-cb92caebd54b?auto=format&fit=crop&w=1200&q=80";
+
+// export default function ProductCard({ product }: { product: ProductListOut }) {
+//   return (
+//     <Link
+//       to={`/p/${product.slug}`}
+//       className="group block rounded-3xl border bg-white p-4 shadow-sm hover:shadow-md transition"
+//     >
+//       <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-gray-50">
+//         <img
+//           src={product.image_url || FALLBACK_IMG}
+//           alt={product.name}
+//           className="h-full w-full object-cover transition group-hover:scale-[1.02]"
+//           loading="lazy"
+//         />
+//       </div>
+
+//       <div className="mt-4">
+//         <p className="text-sm font-semibold text-gray-900 line-clamp-2">
+//           {product.name}
+//         </p>
+//         <div className="mt-2 flex items-end justify-between">
+//           <p className="text-sm font-semibold">{formatMoney(product.price)}</p>
+//           {product.compare_at_price ? (
+//             <p className="text-xs text-gray-400 line-through">
+//               {formatMoney(product.compare_at_price)}
+//             </p>
+//           ) : null}
+//         </div>
+//       </div>
+//     </Link>
+//   );
+// }

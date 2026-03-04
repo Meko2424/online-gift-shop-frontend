@@ -60,7 +60,8 @@ function TopBar() {
                 <Search size={18} />
               </span>
               <input
-                className="w-full rounded-full border bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-black"
+                // className="w-full rounded-full border bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-black"
+                className="w-full rounded-full border border-search-field bg-white py-2.5 pl-10 pr-4 text-sm outline-none  "
                 placeholder="Search gifts, grocery, cakes, flowers…"
               />
             </label>
@@ -117,7 +118,8 @@ function RedMegaNav() {
   );
 
   return (
-    <nav className="bg-gradient-to-b from-rose-600 to-rose-700 text-white">
+    <nav className="bg-primary-brand  text-white">
+      {/* <nav className="bg-gradient-to-b from-rose-600 to-rose-700 text-white"> */}
       {/* anchor for dropdown */}
       <div className="relative" onMouseLeave={() => setOpenLabel(null)}>
         <div className="mx-auto max-w-7xl px-4">

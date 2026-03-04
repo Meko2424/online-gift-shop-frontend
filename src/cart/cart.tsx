@@ -14,6 +14,7 @@ export type CartItem = {
   unit_price: number;
   qty: number;
   product_type?: "simple" | "bundle";
+  delivery_date?: string;
 };
 
 type CartState = {
@@ -62,13 +63,23 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     function addItem(item: Omit<CartItem, "qty">, qty = 1) {
       const q = clampQty(qty);
+
       setItems((prev) => {
         const idx = prev.findIndex((x) => x.product_id === item.product_id);
         if (idx >= 0) {
           const next = [...prev];
-          next[idx] = { ...next[idx], qty: next[idx].qty + q };
+          const existing = next[idx];
+
+          // Update details + optionally update delivery_date if provided
+          next[idx] = {
+            ...existing,
+            ...item,
+            delivery_date: item.delivery_date ?? existing.delivery_date,
+            qty: existing.qty + q,
+          };
           return next;
         }
+
         return [...prev, { ...item, qty: q }];
       });
     }

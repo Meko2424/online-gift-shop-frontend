@@ -8,13 +8,25 @@ function formatMoney(n: number) {
   }).format(n);
 }
 
+function formatDate(iso?: string) {
+  if (!iso) return null;
+  // iso is yyyy-mm-dd
+  const d = new Date(`${iso}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+  });
+}
+
 export default function CartPage() {
   const cart = useCart();
   const navigate = useNavigate();
 
   return (
     <main className="bg-gray-50">
-      <div className="mx-auto max-w-5xl px-4 py-10">
+      <div className="mx-auto max-w-6xl px-4 py-10">
         <div className="flex items-end justify-between">
           <div>
             <h1 className="text-3xl font-semibold tracking-tight text-gray-900">
@@ -24,6 +36,7 @@ export default function CartPage() {
               Review your items before checkout.
             </p>
           </div>
+
           {cart.items.length ? (
             <button
               type="button"
@@ -39,15 +52,16 @@ export default function CartPage() {
           <div className="mt-8 rounded-3xl border bg-white p-8 shadow-sm">
             <p className="text-sm text-gray-700">Your cart is empty.</p>
             <Link
-              className="mt-4 inline-block rounded-full bg-black px-5 py-3 text-sm font-semibold text-white hover:bg-gray-900"
+              className="mt-4 inline-block rounded-full bg-primary-brand px-5 py-3 text-sm font-semibold text-white hover:opacity-80 disabled:opacity-60"
               to="/"
             >
               Continue shopping
             </Link>
           </div>
         ) : (
-          <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_360px]">
-            <div className="space-y-4">
+          <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px]">
+            {/* Left: cart items */}
+            <section className="space-y-4">
               {cart.items.map((it) => (
                 <div
                   key={it.product_id}
@@ -72,9 +86,19 @@ export default function CartPage() {
                       >
                         {it.name}
                       </Link>
+
                       <div className="mt-1 text-sm text-gray-600">
                         {formatMoney(it.unit_price)} each
                       </div>
+
+                      {it.delivery_date ? (
+                        <div className="mt-2 text-xs text-gray-600">
+                          Delivery date:{" "}
+                          <span className="font-semibold text-gray-900">
+                            {formatDate(it.delivery_date)}
+                          </span>
+                        </div>
+                      ) : null}
 
                       <div className="mt-4 flex flex-wrap items-center gap-3">
                         <div className="inline-flex items-center rounded-full border bg-white px-3 py-2">
@@ -122,9 +146,10 @@ export default function CartPage() {
                   </div>
                 </div>
               ))}
-            </div>
+            </section>
 
-            <aside className="h-fit rounded-2xl border bg-white p-6 shadow-sm">
+            {/* Right: order summary */}
+            <aside className="h-fit rounded-3xl border bg-white p-6 shadow-sm">
               <h2 className="text-lg font-semibold text-gray-900">
                 Order summary
               </h2>
@@ -152,14 +177,11 @@ export default function CartPage() {
 
               <button
                 type="button"
-                className="mt-6 w-full rounded-full bg-black px-6 py-3 text-sm font-semibold text-white hover:bg-gray-900"
-                onClick={
-                  () => navigate("/checkout")
-
-                  // alert("Next step: Checkout flow (create order + pay)")
-                }
+                className="mt-6 w-full rounded-full bg-primary-brand px-6 py-3 text-sm font-semibold text-white hover:opacity-80 disabled:opacity-60"
+                // onClick={() => navigate("/checkout/details")}
+                onClick={() => navigate("/checkout")}
               >
-                Checkout
+                Proceed to Checkout
               </button>
 
               <Link

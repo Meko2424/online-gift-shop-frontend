@@ -4,25 +4,15 @@ import HeroCarousel from "./components/HeroCarousel";
 import ShopBySection from "./components/ShopBySection";
 import ShopByCategoryBar from "./components/ShopByCategoryBar";
 import ProductCarousel from "./components/ProductCarousel";
-//import { BEST_SELLERS } from "./data/mockProducts";
 import { useBestSellers } from "./hooks/useBestSellers";
-import type { Product as CardProduct } from "./components/ProductCard";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import CategoryPage from "./pages/CategoryPage";
 import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import OrderSuccessPage from "./pages/OrderSuccessPage";
 import LoginPage from "./pages/LoginPage";
-// function Home() {
-//   return (
-//     <div className="mx-auto max-w-7xl px-4 py-10">
-//       <h1 className="text-3xl font-bold">Home</h1>
-//       <p className="mt-2 text-gray-600">
-//         Next: hero banner + category tiles + product sections.
-//       </p>
-//     </div>
-//   );
-// }
+import CheckoutDetailsPage from "./pages/CheckoutDetailsPage";
+import PaymentPage from "./pages/PaymentPage";
 
 function Home() {
   const { data: best, loading: bestLoading } = useBestSellers();
@@ -146,36 +136,8 @@ function Home() {
         tiles={shopByOccasion}
       />
     </main>
-    // <main>
-    //   <HeroCarousel slides={heroSlides} />
-
-    //   <ShopBySection
-    //     title="Shop By Occasion"
-    //     accentWord="Occasion"
-    //     tiles={shopByOccasion}
-    //   />
-
-    //   <ShopBySection title="More to Explore" tiles={moreToExplore} />
-    // </main>
   );
 }
-
-// function Category() {
-//   return (
-//     <div className="mx-auto max-w-7xl px-4 py-10">
-//       <h1 className="text-2xl font-bold">Category page</h1>
-//       <p className="mt-2 text-gray-600">Next: filters + product grid cards.</p>
-//     </div>
-//   );
-// }
-
-// function Cart() {
-//   return (
-//     <div className="mx-auto max-w-7xl px-4 py-10">
-//       <h1 className="text-2xl font-bold">Cart</h1>
-//     </div>
-//   );
-// }
 
 function Account() {
   return (
@@ -192,12 +154,13 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<LoginPage />} />
-        {/* <Route path="/c/:slug" element={<Category />} /> */}
         <Route path="/c/:slug" element={<CategoryPage />} />
         <Route path="/p/:slug" element={<ProductDetailPage />} />
         <Route path="/cart" element={<CartPage />} />
         <Route path="/account" element={<Account />} />
         <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/checkout/payment" element={<PaymentPage />} />
+        <Route path="/checkout/details" element={<CheckoutDetailsPage />} />
         <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
       </Routes>
     </BrowserRouter>

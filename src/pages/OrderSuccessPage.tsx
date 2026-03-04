@@ -10,6 +10,27 @@ function formatMoney(n: number) {
   }).format(n);
 }
 
+function StatusBadge({ status }: { status: string }) {
+  const cls =
+    status === "COMPLETED"
+      ? "bg-green-50 text-green-700 border-green-200"
+      : status === "FULFILLING"
+        ? "bg-amber-50 text-amber-800 border-amber-200"
+        : status === "PAID"
+          ? "bg-blue-50 text-blue-700 border-blue-200"
+          : status === "CANCELLED"
+            ? "bg-red-50 text-red-700 border-red-200"
+            : "bg-gray-50 text-gray-700 border-gray-200";
+
+  return (
+    <span
+      className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold ${cls}`}
+    >
+      {status}
+    </span>
+  );
+}
+
 export default function OrderSuccessPage() {
   const { orderId } = useParams<{ orderId: string }>();
 
@@ -90,9 +111,14 @@ export default function OrderSuccessPage() {
                   <p className="mt-2 text-lg font-semibold text-gray-900">
                     #{order.id}
                   </p>
-                  <p className="mt-1 text-sm text-gray-600">
-                    Status: {order.status}
-                  </p>
+                  <div className="mt-2">
+                    <StatusBadge status={order.status} />
+                  </div>
+                  {order.warehouse_id !== null ? (
+                    <p className="mt-2 text-sm text-gray-600">
+                      Warehouse: {order.warehouse_id}
+                    </p>
+                  ) : null}
                 </div>
 
                 <div className="rounded-2xl border bg-gray-50 p-5">
@@ -105,6 +131,16 @@ export default function OrderSuccessPage() {
                   <p className="mt-1 text-sm text-gray-600">
                     {order.customer_phone}
                   </p>
+                  <p className="mt-2 text-xs text-gray-500">
+                    Placed at:{" "}
+                    {new Date(order.created_at).toLocaleString(undefined, {
+                      year: "numeric",
+                      month: "short",
+                      day: "2-digit",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
                 </div>
               </div>
 
@@ -112,37 +148,75 @@ export default function OrderSuccessPage() {
                 <h2 className="text-lg font-semibold text-gray-900">Items</h2>
 
                 <div className="mt-4 divide-y">
-                  {order.items.map((it) => (
-                    <div
-                      key={it.id}
-                      className="py-4 flex items-start justify-between gap-4"
-                    >
-                      <div>
-                        <p className="font-semibold text-gray-900">
-                          Product #{it.product_id}
-                        </p>
-                        <p className="mt-1 text-sm text-gray-600">
-                          {it.product_type.toUpperCase()} •{" "}
-                          {it.fulfillment_type}
-                        </p>
-                        <p className="mt-1 text-sm text-gray-600">
-                          Qty:{" "}
-                          <span className="font-semibold text-gray-900">
-                            {it.qty}
-                          </span>
-                        </p>
-                      </div>
+                  {order.items.map((it) => {
+                    const lineRevenue = it.unit_price * it.qty;
+                    const cogs = it.cogs_total ?? null;
+                    const profit = cogs !== null ? lineRevenue - cogs : null;
+                    const margin =
+                      profit !== null && lineRevenue > 0
+                        ? (profit / lineRevenue) * 100
+                        : null;
 
-                      <div className="text-right">
-                        <p className="text-sm text-gray-600">
-                          {formatMoney(it.unit_price)} each
-                        </p>
-                        <p className="mt-1 font-semibold text-gray-900">
-                          {formatMoney(it.unit_price * it.qty)}
-                        </p>
+                    return (
+                      <div
+                        key={it.id}
+                        className="py-4 flex items-start justify-between gap-4"
+                      >
+                        <div>
+                          <p className="font-semibold text-gray-900">
+                            Product #{it.product_id}
+                          </p>
+                          <p className="mt-1 text-sm text-gray-600">
+                            {it.product_type.toUpperCase()} •{" "}
+                            {it.fulfillment_type}
+                          </p>
+                          <p className="mt-1 text-sm text-gray-600">
+                            Qty:{" "}
+                            <span className="font-semibold text-gray-900">
+                              {it.qty}
+                            </span>
+                          </p>
+                        </div>
+
+                        <div className="text-right">
+                          <p className="text-sm text-gray-600">
+                            {formatMoney(it.unit_price)} each
+                          </p>
+                          <p className="mt-1 font-semibold text-gray-900">
+                            {formatMoney(lineRevenue)}
+                          </p>
+
+                          {it.cogs_total !== null ? (
+                            <>
+                              <p className="mt-2 text-xs text-gray-600">
+                                COGS:{" "}
+                                <span className="font-semibold text-gray-900">
+                                  {formatMoney(it.cogs_total)}
+                                </span>
+                              </p>
+                              <p className="mt-1 text-xs text-gray-600">
+                                Profit:{" "}
+                                <span className="font-semibold text-gray-900">
+                                  {formatMoney(lineRevenue - it.cogs_total)}
+                                </span>
+                                {margin !== null ? (
+                                  <span className="text-gray-500">
+                                    {" "}
+                                    ({margin.toFixed(1)}%)
+                                  </span>
+                                ) : null}
+                              </p>
+                            </>
+                          ) : (
+                            <p className="mt-2 text-xs text-gray-500">
+                              COGS will appear after cost snapshots are
+                              recorded.
+                            </p>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 <div className="mt-6 flex items-center justify-between border-t pt-4">
@@ -161,7 +235,7 @@ export default function OrderSuccessPage() {
                   Continue shopping
                 </Link>
                 <Link
-                  to={`/account`} // later: customer order history
+                  to="/account"
                   className="rounded-full border bg-white px-6 py-3 text-sm font-semibold hover:bg-gray-50"
                 >
                   View account
@@ -169,8 +243,8 @@ export default function OrderSuccessPage() {
               </div>
 
               <p className="mt-6 text-xs text-gray-500">
-                Next: show supplier jobs (cakes) + fulfillment steps on this
-                page.
+                Next: include product name/slug in OrderItemOut so we can show
+                real item names here instead of Product #id.
               </p>
             </>
           )}

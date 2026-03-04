@@ -1,4 +1,5 @@
 export type ProductType = "simple" | "bundle";
+export type FulfillmentType = "STOCKED" | "MADE_TO_ORDER" | "DIGITAL";
 
 export type ProductListOut = {
   id: number;
@@ -36,13 +37,17 @@ export type OrderItemOut = {
   product_id: number;
   qty: number;
   unit_price: number;
-  product_type: "simple" | "bundle";
-  fulfillment_type: "STOCKED" | "MADE_TO_ORDER" | "DIGITAL";
+
+  cogs_unit_cost: number | null;
+  cogs_total: number | null;
+
+  product_type: ProductType;
+  fulfillment_type: FulfillmentType;
 };
 
 export type OrderOut = {
   id: number;
-  status: string;
+  status: "PENDING" | "FULFILLING" | "COMPLETED" | "CANCELLED";
   warehouse_id: number | null;
   customer_name: string;
   customer_phone: string;
