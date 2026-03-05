@@ -8,6 +8,9 @@ export default {
         "search-field": "#959499",
         "user-field": "#626369",
       },
+      fontFamily: {
+        brand: ["Source Code Pro"],
+      },
     },
   },
   plugins: [],

@@ -561,7 +561,7 @@ export default function ProductDetailPage() {
               <button
                 type="button"
                 // className="flex-1 rounded-full bg-black px-6 py-3 text-sm font-semibold text-white hover:bg-gray-900"
-                className="flex-1 rounded-full bg-primary-brand px-6 py-3 text-sm font-semibold text-white hover:opacity-80 disabled:opacity-60"
+                className="font-brand flex-1 rounded-full bg-primary-brand px-6 py-3 text-sm font-semibold text-white hover:opacity-80 disabled:opacity-60"
                 onClick={() => {
                   if (!deliveryDate) {
                     setDateError("Please select a delivery date.");
