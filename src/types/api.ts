@@ -35,6 +35,11 @@ export type ProductDetailOut = {
 export type OrderItemOut = {
   id: number;
   product_id: number;
+
+  product_name: string;
+  product_slug: string | null;
+  img_url: string | null;
+
   qty: number;
   unit_price: number;
 

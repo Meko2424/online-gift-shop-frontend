@@ -215,7 +215,7 @@ export default function OrderSuccessPage() {
                 <h2 className="text-lg font-semibold text-gray-900">Items</h2>
 
                 <div className="mt-4 divide-y">
-                  {order.items.map((it: any) => {
+                  {order.items.map((it) => {
                     const lineRevenue = it.unit_price * it.qty;
                     const cogs = it.cogs_total ?? null;
                     const profit = cogs !== null ? lineRevenue - cogs : null;
@@ -225,37 +225,71 @@ export default function OrderSuccessPage() {
                         : null;
 
                     const delivery =
-                      formatDate(it.delivery_date) ||
+                      formatDate(it.delivery_date) ??
                       getDeliveryDateFallback(it.product_id);
+
+                    const productHref = it.product_slug
+                      ? `/p/${it.product_slug}`
+                      : undefined;
+                    const productImage =
+                      it.img_url ||
+                      "https://images.unsplash.com/photo-1549007994-cb92caebd54b?auto=format&fit=crop&w=600&q=80";
 
                     return (
                       <div
                         key={it.id}
                         className="py-4 flex items-start justify-between gap-4"
                       >
-                        <div>
-                          <p className="font-semibold text-gray-900">
-                            Product #{it.product_id}
-                          </p>
-                          <p className="mt-1 text-sm text-gray-600">
-                            {it.product_type?.toUpperCase?.() ?? "ITEM"} •{" "}
-                            {it.fulfillment_type}
-                          </p>
-                          <p className="mt-1 text-sm text-gray-600">
-                            Qty:{" "}
-                            <span className="font-semibold text-gray-900">
-                              {it.qty}
-                            </span>
-                          </p>
+                        <div className="flex items-start gap-4">
+                          <div className="h-16 w-16 overflow-hidden rounded-2xl bg-gray-50 flex-shrink-0">
+                            <img
+                              src={productImage}
+                              alt={it.product_name}
+                              className="h-full w-full object-cover"
+                              onError={(e) => {
+                                const img = e.currentTarget;
+                                img.onerror = null;
+                                img.src =
+                                  "https://images.unsplash.com/photo-1549007994-cb92caebd54b?auto=format&fit=crop&w=600&q=80";
+                              }}
+                            />
+                          </div>
 
-                          {delivery ? (
-                            <p className="mt-2 text-sm text-gray-600">
-                              Delivery:{" "}
+                          <div>
+                            {productHref ? (
+                              <Link
+                                to={productHref}
+                                className="font-semibold text-gray-900 hover:underline"
+                              >
+                                {it.product_name}
+                              </Link>
+                            ) : (
+                              <p className="font-semibold text-gray-900">
+                                {it.product_name}
+                              </p>
+                            )}
+
+                            <p className="mt-1 text-sm text-gray-600">
+                              {String(it.product_type).toUpperCase()} •{" "}
+                              {it.fulfillment_type}
+                            </p>
+
+                            <p className="mt-1 text-sm text-gray-600">
+                              Qty:{" "}
                               <span className="font-semibold text-gray-900">
-                                {delivery}
+                                {it.qty}
                               </span>
                             </p>
-                          ) : null}
+
+                            {delivery ? (
+                              <p className="mt-2 text-sm text-gray-600">
+                                Delivery:{" "}
+                                <span className="font-semibold text-gray-900">
+                                  {delivery}
+                                </span>
+                              </p>
+                            ) : null}
+                          </div>
                         </div>
 
                         <div className="text-right">
