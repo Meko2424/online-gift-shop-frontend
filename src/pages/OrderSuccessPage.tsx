@@ -31,23 +31,80 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
+// Safe formatter for "YYYY-MM-DD" or ISO strings
+function formatDate(d?: string | null) {
+  if (!d) return null;
+  return String(d).slice(0, 10);
+}
+
+type CheckoutMeta = { giftMessage?: string };
+
+type CartSnapshotItem = {
+  product_id: number;
+  delivery_date?: string;
+};
+
 export default function OrderSuccessPage() {
   const { orderId } = useParams<{ orderId: string }>();
 
   const [order, setOrder] = useState<OrderOut | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // ✅ start false
   const [error, setError] = useState<string | null>(null);
 
-  const idNum = useMemo(() => Number(orderId), [orderId]);
+  const idNum = useMemo(() => {
+    //if (!orderId) return NaN;
+    const n = Number(orderId);
+    return Number.isFinite(n) ? n : null;
+  }, [orderId]);
+
+  // Fallback: meta from checkout (ONLY if you don't delete it before redirect)
+  const checkoutMeta = useMemo<CheckoutMeta | null>(() => {
+    try {
+      const raw = localStorage.getItem("bg_checkout_meta");
+      return raw ? (JSON.parse(raw) as CheckoutMeta) : null;
+    } catch {
+      return null;
+    }
+  }, []);
+
+  // Optional fallback: cart snapshot for delivery_date if backend doesn't return it
+  const cartSnapshot = useMemo<CartSnapshotItem[] | null>(() => {
+    try {
+      const raw = localStorage.getItem("bole_cart_v1");
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as CartSnapshotItem[];
+      return Array.isArray(parsed) ? parsed : null;
+    } catch {
+      return null;
+    }
+  }, []);
+
+  function getDeliveryDateFallback(productId: number): string | null {
+    if (!cartSnapshot) return null;
+    const found = cartSnapshot.find((x) => x.product_id === productId);
+    return found?.delivery_date ? formatDate(found.delivery_date) : null;
+  }
 
   useEffect(() => {
-    if (!orderId || !Number.isFinite(idNum)) return;
+    //  Handle missing/invalid orderId instead of “stuck loading”
+    if (!orderId || idNum === null) {
+      setError(`Invalid order id: "${orderId}"`);
+      //setOrder(null);
+      setLoading(false);
+      return;
+    }
+    if (!Number.isFinite(idNum)) {
+      setError(`Invalid order id: "${orderId}"`);
+      setOrder(null);
+      setLoading(false);
+      return;
+    }
 
     let cancelled = false;
     setLoading(true);
     setError(null);
 
-    apiGet<OrderOut>(`/api/orders/${orderId}`)
+    apiGet<OrderOut>(`/api/orders/${idNum}`)
       .then((data) => {
         if (!cancelled) setOrder(data);
       })
@@ -67,9 +124,7 @@ export default function OrderSuccessPage() {
     <main className="bg-gray-50">
       <div className="mx-auto max-w-4xl px-4 py-14">
         <div className="rounded-3xl border bg-white p-8 shadow-sm">
-          <h1 className="text-3xl font-semibold text-gray-900">
-            🎉 Order placed
-          </h1>
+          <h1 className="text-3xl font-semibold text-gray-900">Order placed</h1>
           <p className="mt-2 text-gray-600">
             Thanks! Your order has been created successfully.
           </p>
@@ -144,11 +199,23 @@ export default function OrderSuccessPage() {
                 </div>
               </div>
 
+              {/* Gift message (backend first, local fallback second) */}
+              {(order as any).gift_message || checkoutMeta?.giftMessage ? (
+                <div className="mt-6 rounded-2xl border bg-gray-50 p-5">
+                  <p className="text-xs font-semibold tracking-[0.2em] text-gray-500">
+                    GIFT MESSAGE
+                  </p>
+                  <p className="mt-2 text-sm text-gray-900 whitespace-pre-wrap">
+                    {(order as any).gift_message || checkoutMeta?.giftMessage}
+                  </p>
+                </div>
+              ) : null}
+
               <div className="mt-8 rounded-2xl border p-6">
                 <h2 className="text-lg font-semibold text-gray-900">Items</h2>
 
                 <div className="mt-4 divide-y">
-                  {order.items.map((it) => {
+                  {order.items.map((it: any) => {
                     const lineRevenue = it.unit_price * it.qty;
                     const cogs = it.cogs_total ?? null;
                     const profit = cogs !== null ? lineRevenue - cogs : null;
@@ -156,6 +223,10 @@ export default function OrderSuccessPage() {
                       profit !== null && lineRevenue > 0
                         ? (profit / lineRevenue) * 100
                         : null;
+
+                    const delivery =
+                      formatDate(it.delivery_date) ||
+                      getDeliveryDateFallback(it.product_id);
 
                     return (
                       <div
@@ -167,7 +238,7 @@ export default function OrderSuccessPage() {
                             Product #{it.product_id}
                           </p>
                           <p className="mt-1 text-sm text-gray-600">
-                            {it.product_type.toUpperCase()} •{" "}
+                            {it.product_type?.toUpperCase?.() ?? "ITEM"} •{" "}
                             {it.fulfillment_type}
                           </p>
                           <p className="mt-1 text-sm text-gray-600">
@@ -176,6 +247,15 @@ export default function OrderSuccessPage() {
                               {it.qty}
                             </span>
                           </p>
+
+                          {delivery ? (
+                            <p className="mt-2 text-sm text-gray-600">
+                              Delivery:{" "}
+                              <span className="font-semibold text-gray-900">
+                                {delivery}
+                              </span>
+                            </p>
+                          ) : null}
                         </div>
 
                         <div className="text-right">
@@ -241,11 +321,6 @@ export default function OrderSuccessPage() {
                   View account
                 </Link>
               </div>
-
-              <p className="mt-6 text-xs text-gray-500">
-                Next: include product name/slug in OrderItemOut so we can show
-                real item names here instead of Product #id.
-              </p>
             </>
           )}
         </div>

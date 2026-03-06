@@ -43,15 +43,18 @@ export type OrderItemOut = {
 
   product_type: ProductType;
   fulfillment_type: FulfillmentType;
+
+  delivery_date: string | null;
 };
 
 export type OrderOut = {
   id: number;
-  status: "PENDING" | "FULFILLING" | "COMPLETED" | "CANCELLED";
+  status: "PENDING" | "PAID" | "FULFILLING" | "COMPLETED" | "CANCELLED";
   warehouse_id: number | null;
   customer_name: string;
   customer_phone: string;
   total_amount: number;
   created_at: string;
+  gift_message: string | null;
   items: OrderItemOut[];
 };
