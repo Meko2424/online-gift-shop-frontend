@@ -13,6 +13,7 @@ import OrderSuccessPage from "./pages/OrderSuccessPage";
 import LoginPage from "./pages/LoginPage";
 import CheckoutDetailsPage from "./pages/CheckoutDetailsPage";
 import PaymentPage from "./pages/PaymentPage";
+import AccountOrdersPage from "./pages/AccountOrdersPage";
 
 function Home() {
   const { data: best, loading: bestLoading } = useBestSellers();
@@ -162,6 +163,7 @@ export default function App() {
         <Route path="/checkout/payment" element={<PaymentPage />} />
         <Route path="/checkout/details" element={<CheckoutDetailsPage />} />
         <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
+        <Route path="/account/orders" element={<AccountOrdersPage />} />
       </Routes>
     </BrowserRouter>
   );
