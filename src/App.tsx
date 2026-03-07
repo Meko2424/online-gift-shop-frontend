@@ -16,6 +16,7 @@ import PaymentPage from "./pages/PaymentPage";
 import AccountOrdersPage from "./pages/AccountOrdersPage";
 import AdminOrdersPage from "./pages/AdminOrdersPage";
 import AdminFulfillmentPage from "./pages/AdminFulfillmentPage";
+import AdminPurchaseOrdersPage from "./pages/AdminPurchaseOrdersPage";
 
 function Home() {
   const { data: best, loading: bestLoading } = useBestSellers();
@@ -168,6 +169,10 @@ export default function App() {
         <Route path="/account/orders" element={<AccountOrdersPage />} />
         <Route path="/admin/orders" element={<AdminOrdersPage />} />
         <Route path="/admin/fulfillment" element={<AdminFulfillmentPage />} />
+        <Route
+          path="/admin/purchase-orders"
+          element={<AdminPurchaseOrdersPage />}
+        />
       </Routes>
     </BrowserRouter>
   );
