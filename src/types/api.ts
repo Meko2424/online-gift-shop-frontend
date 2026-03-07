@@ -38,7 +38,7 @@ export type OrderItemOut = {
 
   product_name: string;
   product_slug: string | null;
-  img_url: string | null;
+  image_url: string | null;
 
   qty: number;
   unit_price: number;

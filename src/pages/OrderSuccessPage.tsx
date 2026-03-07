@@ -232,7 +232,7 @@ export default function OrderSuccessPage() {
                       ? `/p/${it.product_slug}`
                       : undefined;
                     const productImage =
-                      it.imgage_url ||
+                      it.image_url ||
                       "https://images.unsplash.com/photo-1549007994-cb92caebd54b?auto=format&fit=crop&w=600&q=80";
 
                     return (
